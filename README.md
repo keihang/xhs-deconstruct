@@ -155,6 +155,7 @@ xhs-work/
 | [质量自检](references/quality-checklist.md) | 完成后检查清单 |
 | [常见问题](references/faq.md) | 排错指南 |
 | [风控指南](references/rate-limit-guide.md) | 小红书反爬策略与规避方法 |
+| [风控指南](references/rate-limit-guide.md) | 小红书反爬策略与规避方法 |
 
 ## opencli 小红书常用命令
 
