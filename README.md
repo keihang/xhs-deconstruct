@@ -112,23 +112,26 @@ xhs-work/
 ├── bloggers/
 │   └── 01-博主名/
 │       ├── 概览.md           # 博主信息 + Top 10 数据表
+│       ├── 总结.md           # 跨帖子模式提炼（标题公式、封面规律等）
 │       ├── 原文/             # 帖子原文 + 图片
 │       │   ├── 01-标题.md    # 含 frontmatter 元数据（blogger/platform/type/date）
-│       │   └── image/        # 封面 + 内容图，平铺存放
-│       │       ├── 01-标题.jpg      # 帖子封面
-│       │       ├── 01-标题_2.jpg    # 多图帖子第2张
+│       │   └── image/        # 封面 + 内容图
+│       │       ├── 01-标题/              # 每篇帖子一个子目录
+│       │       │   └── 帖子ID_1.jpg      # opencli download 会在目录内再建一层帖子ID子目录
+│       │       │   └── 帖子ID_2.jpg
+│       │       │   └── ...
 │       │       └── ...
 │       └── 拆解/             # 7 维度拆解分析
 ├── raw-data/                 # API 原始数据（可删除）
-├── 总结.md                   # 跨博主模式提炼
+├── 总结.md                   # 跨博主总结（可选）
 └── CLAUDE.md
 ```
 
 **关键说明**：
 - 原文文件含 frontmatter 元数据（blogger, platform, type, date）
-- 图片平铺在 `image/` 目录，文件名格式 `序号-标题.jpg`
-- 多图帖子额外文件 `序号-标题_2.jpg`、`序号-标题_3.jpg`...
-- `raw-data/` 是中间产物，包含 API 原始返回数据，确认无误后可删除
+- 图片目录有两层：`image/序号-标题/帖子ID/图片文件`，原文引用路径需包含帖子ID子目录
+- `raw-data/` 是中间产物，确认无误后可删除
+- 总结文件放在博主目录内（`博主目录/总结.md`），不是根目录
 
 ## 拆解维度
 
@@ -142,18 +145,25 @@ xhs-work/
 
 ## 参考资料
 
-- [拆解模板](references/deconstruct-template.md) — 7 维度拆解的完整模板
-- [总结模板](references/summary-template.md) — 跨帖子总结模板
-- [风控指南](references/rate-limit-guide.md) — 小红书反爬策略与规避方法
+| 文件 | 用途 |
+|------|------|
+| [拆解模板](references/deconstruct-template.md) | 7 维度拆解的完整模板 |
+| [总结模板](references/summary-template.md) | 跨帖子总结模板 |
+| [概览模板](references/overview-template.md) | 博主概览文件模板 |
+| [原文模板](references/original-template.md) | 原文文件模板 |
+| [反例清单](references/do-nots.md) | 不要做什么 |
+| [质量自检](references/quality-checklist.md) | 完成后检查清单 |
+| [常见问题](references/faq.md) | 排错指南 |
+| [风控指南](references/rate-limit-guide.md) | 小红书反爬策略与规避方法 |
 
 ## opencli 小红书常用命令
 
-| 命令 | 用途 | 本 skill 使用步骤 |
-|------|------|------------------|
-| `opencli xiaohongshu search` | 搜索帖子 | 第1步：搜索博主 |
-| `opencli xiaohongshu user` | 获取用户信息 | 第5步：写概览 |
-| `opencli xiaohongshu note` | 读取帖子详情 | 第4步：读取内容 |
-| `opencli xiaohongshu download` | 下载图片/视频 | 第4步：下载图片 |
-| `opencli xiaohongshu comments` | 获取评论 | 未使用（可扩展） |
+| 命令 | 用途 | 本 skill 使用步骤 | 注意事项 |
+|------|------|------------------|---------|
+| `opencli xiaohongshu search` | 搜索帖子 | 第1步：搜索博主 | `--limit 20` |
+| `opencli xiaohongshu user` | 获取用户帖子列表 | 第1步：锁定博主 | ⚠️ 必须加 `--limit 50`，默认15篇会遗漏大量帖子 |
+| `opencli xiaohongshu note` | 读取帖子详情 | 第4步：读取内容 | 每次间隔15秒 |
+| `opencli xiaohongshu download` | 下载图片/视频 | 第4步：下载图片 | 每次间隔15秒 |
+| `opencli xiaohongshu comments` | 获取评论 | 未使用（可扩展） | — |
 
 完整命令列表见 [OpenCLI xiaohongshu 文档](https://github.com/jackwener/OpenCLI)。
