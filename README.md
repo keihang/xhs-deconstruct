@@ -93,7 +93,7 @@ npx skills add https://github.com/keihang/xhs-deconstruct --skill xhs-deconstruc
 ```
 
 
-skill 会自动执行完整流程：锁定博主 → 确认时间段 → 筛选图文帖子 → 抓取内容 → 写概览 → 写原文 → 拆解分析 → 总结模式 → 沉淀发现。
+skill 会自动执行完整流程：锁定博主 → 确认时间段 → 筛选图文帖子 → 抓取内容 → 写概览 → 写原文 → 拆解分析 → 总结模式 → 沉淀发现 → 生成报告。
 
 ### 使用示例
 
@@ -113,6 +113,7 @@ xhs-work/
 │   └── 01-博主名/
 │       ├── 概览.md           # 博主信息 + Top 10 数据表
 │       ├── 总结.md           # 跨帖子模式提炼（标题公式、封面规律等）
+│       ├── 报告.html         # 莫兰迪风格可视化报告（浏览器直接打开）
 │       ├── 原文/             # 帖子原文 + 图片
 │       │   ├── 01-标题.md    # 含 frontmatter 元数据（blogger/platform/type/date）
 │       │   └── image/        # 封面 + 内容图
@@ -151,6 +152,7 @@ xhs-work/
 | [总结模板](references/summary-template.md) | 跨帖子总结模板 |
 | [概览模板](references/overview-template.md) | 博主概览文件模板 |
 | [原文模板](references/original-template.md) | 原文文件模板 |
+| [HTML 报告模板](references/html-report-template.md) | 莫兰迪风格可视化报告模板 |
 | [反例清单](references/do-nots.md) | 不要做什么 |
 | [质量自检](references/quality-checklist.md) | 完成后检查清单 |
 | [常见问题](references/faq.md) | 排错指南 |
