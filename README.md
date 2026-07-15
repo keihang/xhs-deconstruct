@@ -92,7 +92,6 @@ npx skills add https://github.com/keihang/xhs-deconstruct --skill xhs-deconstruc
 /xhs-deconstruct 拆解 https://www.xiaohongshu.com/user/profile/xxx?xsec_token=xxx
 ```
 
-⚠️ 必须用 `/xhs-deconstruct` 斜杠命令触发，直接说"拆解"或发链接不会自动调用。
 
 skill 会自动执行完整流程：锁定博主 → 确认时间段 → 筛选图文帖子 → 抓取内容 → 写概览 → 写原文 → 拆解分析 → 总结模式 → 沉淀发现。
 

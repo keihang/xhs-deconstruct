@@ -52,7 +52,6 @@ opencli install xiaohongshu              # 安装小红书适配器
 - **方式A**：`/xhs-deconstruct 拆解 博主名字` → AI 搜索博主名字
 - **方式B**：`/xhs-deconstruct 拆解 https://www.xiaohongshu.com/user/profile/xxx` → AI 直接用链接获取数据
 
-⚠️ 必须用 `/xhs-deconstruct` 斜杠命令触发，直接说"拆解"或发链接不会自动调用。
 
 ### 第1步：锁定博主
 
