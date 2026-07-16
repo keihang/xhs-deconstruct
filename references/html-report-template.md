@@ -518,7 +518,7 @@
     <div class="meta">
       <span>📅 {分析时间段}</span>
       <span>📊 {数量} 篇图文</span>
-      <span>🎯 点赞 > 100</span>
+      <span>🎯 最近半年图文前20候选，最多拆解10篇</span>
     </div>
   </div>
 

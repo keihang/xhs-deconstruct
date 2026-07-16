@@ -1,158 +1,129 @@
 ---
 name: xhs-deconstruct
-description: 拆解小红书博主，分析指定时间段内流量最好的10篇图文帖子（点赞>100），提炼标题公式、封面设计、内容结构等可复用模式。视频帖子不计入，自动跳过。触发方式：/xhs-deconstruct 拆解 博主名 或 /xhs-deconstruct 拆解 链接。
+description: 拆解小红书博主，默认分析最近半年的图文帖子，按点赞排序筛出前20篇图文候选，抓取其中最多10篇做拆解，提炼标题公式、封面设计、内容结构等可复用模式。视频帖子不进入候选池。触发方式：/xhs-deconstruct 拆解 博主名 或 /xhs-deconstruct 拆解 链接。
 version: 3.0
 author: 阿恒
 ---
 
 # 小红书博主拆解
 
-分析小红书博主的爆款帖，提炼可复用的内容模式。
+分析小红书博主的内容模式，输出可复用的标题、封面、内容结构和选题规律。
 
 ## 前置条件
 
-安装 [OpenCLI](https://github.com/jackwener/OpenCLI)（把网站变成 CLI，让 AI agent 操作你的浏览器）：
+- 已安装并可使用 `opencli`
+- 已安装小红书适配器
+- 浏览器桥接可正常连接
+- 详细安装说明看 `README.md`
+
+## 触发方式
+
+- `/xhs-deconstruct 拆解 博主名字`
+- `/xhs-deconstruct 拆解 小红书主页链接`
+
+## 筛选硬规则
+
+- 默认只分析**最近半年**
+- 候选数据来源只用 `opencli xiaohongshu user ... --limit 50 --format json`
+- 先按时间过滤，再按 `type` 过滤，只保留图文
+- 图文帖子按点赞降序排序，取前20篇进入候选池
+- 按候选顺序抓取，最多保留10篇
+- 不足10篇就有多少抓多少
+- 视频帖子不进入候选池
+- 下载阶段只做复核，不承担主筛选
+
+## 执行流程
+
+### 1. 锁定博主
+
+- 用户给名字：先搜索，再定位正确主页
+- 用户给链接：直接使用主页链接
+- 获取主页后，统一用：
 
 ```bash
-# 方式A：下载安装包 → https://opencli.info/download
-# 方式B：npm 全局安装（Node.js >= 20）
-npm install -g @jackwener/opencli
-
-# 安装 Browser Bridge 扩展（Chrome Web Store 搜索 OpenCLI）
-# 验证连接
-opencli doctor
-# 安装小红书适配器
-opencli install xiaohongshu
+opencli xiaohongshu user "用户主页链接" --limit 50 --format json
 ```
 
-## 目标
+### 2. 建立候选池
 
-拆解小红书博主，分析每位博主指定时间段内**流量最好的10篇图文帖子**（点赞>100），提炼标题公式、内容结构、封面设计等可复用模式。视频帖子不计入，自动跳过。
+1. 只保留最近半年内的帖子
+2. 只保留 `type` 为图文的帖子
+3. 按点赞数降序排序
+4. 取前20篇作为候选池；不足20篇就全取
 
-## 工作流程
+🔴 **CHECKPOINT：先向用户展示最近半年图文总数、候选池数量，再继续。**
 
-**博主锁定方式（二选一，都用 `/xhs-deconstruct` 触发）**：
-- **方式A**：`/xhs-deconstruct 拆解 博主名字` → AI 搜索博主名字
-- **方式B**：`/xhs-deconstruct 拆解 链接` → AI 直接用链接获取数据
+### 3. 顺序抓取候选
 
-### 第1步：锁定博主
-
-```bash
-# 方式A：搜索博主名字
-opencli xiaohongshu search "博主名字" --limit 20
-
-# 方式B：直接用链接获取数据（必须加 --limit 50，否则默认只返回15篇）
-opencli xiaohongshu user "用户发的链接" --limit 50
-```
-
-**⚠️ 风控注意**：每次操作间隔**15秒**。如果触发风控（返回空结果或"安全验证"），降到 `--limit 30` 重试，或等5-10分钟后再试。
-
-### 第2步：确认时间段
-
-🔴 **CHECKPOINT：必须先问用户再继续。**
-
-询问用户要抓取的时间段：一个月 / 半年 / 一年。
-
-### 第3步：筛选帖子（图文优先）
-
-**目标**：找到该时间段内，点赞>100的**图文帖子**，取前10篇。
-
-**筛选流程**：
-1. 按时间筛选：只保留用户选择时间段内的帖子
-2. 按类型筛选：只保留图文帖子，跳过视频
-3. 按点赞筛选：只保留点赞>100的帖子
-4. 排序取前10：按点赞数从高到低
-
-**不足10篇时**：有多少抓多少，如实告知用户。低于3篇可降低门槛到点赞>50。
-
-🔴 **CHECKPOINT：筛选完成后，向用户确认筛选结果再继续。**
-
-### 第4步：读取帖子内容并下载原图
+对候选池按点赞从高到低逐条执行：
 
 ```bash
-# 读取帖子内容
-opencli xiaohongshu note "搜索结果URL" --format json > raw-data/posts/博主名/01-标题.json
-
-# 下载所有图片（不只是封面）
+opencli xiaohongshu note "搜索结果URL" --format json > raw-data/notes/博主名/01-标题.json
 opencli xiaohongshu download "搜索结果URL" --output bloggers/01-博主名/原文/image/01-标题/
 ```
 
-**关键**：
-- 必须用搜索结果URL（带xsec_token），explore URL 会触发安全验证
-- 下载时观察文件格式：`.mp4` = 视频跳过，`.jpg/.png` = 图文继续
-- 读取间隔**15秒**，连续3篇失败则停止，等10分钟
+抓取规则：
+- 必须使用带 `xsec_token` 的 URL
+- 若下载结果是图片文件（如 `.jpg/.png/.webp`），继续
+- 若下载结果只有 `.mp4` 或明显是视频，视为类型误判，跳过并记录异常
+- 成功保留满10篇就停止
+- 若候选抓完仍不足10篇，直接如实返回
 
-### 第5步：写概览文件
+### 4. 生成产物
 
-读取 `references/overview-template.md`，为当前博主创建 `概览.md`。
+按顺序生成：
+1. `概览.md`
+2. 每篇 `原文/*.md`
+3. 每篇 `拆解/*.md`
+4. `总结.md`
+5. `报告.html`
 
-### 第6步：写原文文件
+模板来源：
+- `references/overview-template.md`
+- `references/original-template.md`
+- `references/deconstruct-template.md`
+- `references/summary-template.md`
+- `references/html-report-template.md`
 
-读取 `references/original-template.md`，每篇帖子创建原文文件。
+🔴 **CHECKPOINT：下载完成后，先确认图片数量和格式，再写原文。**
 
-🔴 **CHECKPOINT：下载完成后，确认图片数量和格式再写文件。**
+🔴 **CHECKPOINT：所有拆解完成后，先向用户展示拆解概况，再写总结。**
 
-### 第7步：写拆解分析
+## 异常处理
 
-读取 `references/deconstruct-template.md`，每篇帖子按7个维度拆解。
-
-### 第8步：写总结
-
-🔴 **CHECKPOINT：所有拆解完成后，先向用户展示拆解概况，确认无遗漏再写总结。**
-
-读取 `references/summary-template.md`，分析所有拆解文件，提炼共性模式。
-
-### 第9步：生成 HTML 报告
-
-读取 `references/html-report-template.md`，根据概览、拆解、总结文件的数据，生成 `报告.html`。
-
-**关键**：
-- HTML 自包含（CSS 内联），浏览器直接打开即可阅读
-- 纯文字数据，不嵌入封面图片
-- 所有占位符填入实际数据，不编造
-- 统计数字必须基于实际数据计算
-- 保存到 `bloggers/XX-博主名/报告.html`
+- 风控或空结果：降到 `--limit 30`，或等待 5-10 分钟后重试
+- 连续3篇读取失败：停止抓取，等待 10 分钟
+- `type` 与下载结果不一致：以下载结果为准，跳过并记录
+- 最近半年图文不足10篇：如实说明，不补视频，不降低门槛
 
 ## 输出结构
 
-```
+```text
 xhs-work/
-├── bloggers/
-│   ├── 01-博主名/
-│   │   ├── 概览.md              # 博主基本信息、内容定位、Top 10 数据表
-│   │   ├── 报告.html            # 浏览器可直接打开的可视化拆解报告
-│   │   ├── 总结.md              # 该博主的拆解总结
-│   │   ├── 原文/                 # 笔记原文 + 所有图片
-│   │   │   ├── 01-标题.md       # 原文文件（含 frontmatter 元数据）
-│   │   │   ├── image/           # 该博主所有帖子的图片
-│   │   │   │   ├── 01-标题/              # 每篇帖子一个子目录
-│   │   │   │   │   └── 帖子ID_1.jpg      # opencli download 会在目录内再建一层帖子ID子目录
-│   │   │   │   │   └── 帖子ID_2.jpg
-│   │   │   │   │   └── ...
-│   │   │   │   └── ...
-│   │   │   └── ...
-│   │   └── 拆解/                 # 每篇笔记的7维度拆解分析
-│   │       ├── 01-标题.md
-│   │       └── ...
-│   └── 02-博主名/
-│       └── ...（同结构）
-├── raw-data/                    # 原始 JSON 数据（中间产物，可删除）
-│   ├── posts/                   # 搜索结果 JSON
-│   └── notes/                   # 帖子详情 JSON
-└── CLAUDE.md
+├── bloggers/01-博主名/
+│   ├── 概览.md
+│   ├── 总结.md
+│   ├── 报告.html
+│   ├── 原文/
+│   │   ├── 01-标题.md
+│   │   └── image/01-标题/帖子ID/1.jpg
+│   └── 拆解/
+│       └── 01-标题.md
+└── raw-data/
+    ├── posts/
+    └── notes/
 ```
 
-## 注意事项
+## 命名与约束
 
-- 文件命名：用连字符（-）不用空格，序号用两位数（01、02、...）
-- 避免命名冲突：先检查已有博主目录，确保序号不重复
-- 风控：搜索/读取间隔15秒，返回空数据等几分钟再继续
-- 图片目录有两层：`image/序号-标题/帖子ID/图片文件`，原文引用路径需包含帖子ID子目录
+- 文件名用连字符，不用空格
+- 序号统一两位：`01`、`02`
+- 图片引用路径必须包含帖子ID子目录
+- 不要编造数据，所有统计基于实际抓取结果
+- HTML 报告必须自包含，可直接浏览器打开
 
-## 参考文件
+## 完成前必读
 
-完成拆解后，读取以下文件进行自检和排错：
-
-- `references/do-nots.md` — 不要做什么（反例清单）
-- `references/quality-checklist.md` — 质量自检清单
-- `references/faq.md` — 常见问题
+- `references/do-nots.md`
+- `references/quality-checklist.md`
+- `references/faq.md`

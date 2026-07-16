@@ -1,6 +1,6 @@
 [
-  {"id": 1, "prompt": "/xhs-deconstruct 拆解 数字生命卡兹克", "expected": "完整9步流程执行：搜索博主→确认时间段→筛选图文→抓取内容→原文+拆解+总结，只统计图文帖子"},
-  {"id": 2, "prompt": "/xhs-deconstruct 拆解 张琦", "expected": "大V博主严格筛选，按点赞排序取前10篇图文，视频帖子自动跳过"},
-  {"id": 3, "prompt": "/xhs-deconstruct 拆解 一个粉丝只有500的小博主", "expected": "诚实反馈数据不足，调整筛选标准或终止，不硬凑10篇"},
+  {"id": 1, "prompt": "/xhs-deconstruct 拆解 数字生命卡兹克", "expected": "完整流程执行：搜索博主→默认最近半年→按 type 过滤图文→按点赞排序取前20候选→顺序抓取最多10篇→原文+拆解+总结"},
+  {"id": 2, "prompt": "/xhs-deconstruct 拆解 张琦", "expected": "大V博主按点赞排序建立前20篇图文候选池，顺序抓取最多10篇，视频帖子不进入候选池"},
+  {"id": 3, "prompt": "/xhs-deconstruct 拆解 一个粉丝只有500的小博主", "expected": "诚实反馈最近半年内图文样本不足10篇，有多少抓多少，不硬凑10篇"},
   {"id": 4, "prompt": "/xhs-deconstruct 拆解 https://www.xiaohongshu.com/user/profile/xxx?xsec_token=xxx", "expected": "直接用链接获取数据，跳过搜索步骤，后续流程一致"}
 ]
